@@ -7,5 +7,6 @@
 
 #include "Parser.hpp"
 #include "Code.hpp"
+#include "SymbolTable.hpp"
 
 #endif

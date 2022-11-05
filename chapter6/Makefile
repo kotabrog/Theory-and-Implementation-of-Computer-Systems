@@ -4,6 +4,7 @@ SOURCES_FOLDER = src/
 SOURCES =	main.cpp \
 			Parser.cpp \
 			Code.cpp \
+			SymbolTable.cpp \
 
 SOURCES_PREFIXED = $(addprefix $(SOURCES_FOLDER), $(SOURCES))
 
@@ -12,6 +13,7 @@ INCLUDES =	Assembler.hpp \
 			Parser.hpp \
 			CommandType.hpp \
 			Code.hpp \
+			SymbolTable.hpp \
 
 INCLUDES_PREFIXED = $(addprefix $(INCLUDES_FOLDER), $(INCLUDES))
 

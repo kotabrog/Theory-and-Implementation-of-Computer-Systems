@@ -76,6 +76,7 @@ std::bitset<7> Code::comp(std::string s)
     return _comp;
 }
 
+
 std::bitset<3> Code::jump(std::string s)
 {
     _jump.reset();
