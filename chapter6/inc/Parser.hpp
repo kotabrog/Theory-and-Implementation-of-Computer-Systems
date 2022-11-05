@@ -19,17 +19,23 @@ private:
     std::string _comp;
     std::string _jump;
 
-    std::string _eraseEmpty(std::string s);
+    std::string _eraseSpace(std::string s);
+    std::string _eraseComment(std::string s);
+    CommandType _checkCommandType(std::string s);
+    std::string _parseSymbol(std::string s);
+    std::string _parseDest(std::string s);
+    std::string _parseComp(std::string s);
+    std::string _parseJump(std::string s);
 
 public:
     Parser(std::string fileName);
     bool hasMoreCommands();
     bool advance();
-    CommandType commandType();
-    std::string symbol();
-    std::string dest();
-    std::string comp();
-    std::string jump();
+    CommandType commandType() {return _commandType;}
+    std::string symbol() {return _symbol;}
+    std::string dest() {return _dest;}
+    std::string comp() {return _comp;}
+    std::string jump() {return _jump;}
 };
 
 #endif
