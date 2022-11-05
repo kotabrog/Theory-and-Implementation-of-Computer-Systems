@@ -3,6 +3,7 @@ NAME := Assembler
 SOURCES_FOLDER = src/
 SOURCES =	main.cpp \
 			Parser.cpp \
+			Code.cpp \
 
 SOURCES_PREFIXED = $(addprefix $(SOURCES_FOLDER), $(SOURCES))
 
@@ -10,6 +11,7 @@ INCLUDES_FOLDER = inc/
 INCLUDES =	Assembler.hpp \
 			Parser.hpp \
 			CommandType.hpp \
+			Code.hpp \
 
 INCLUDES_PREFIXED = $(addprefix $(INCLUDES_FOLDER), $(INCLUDES))
 

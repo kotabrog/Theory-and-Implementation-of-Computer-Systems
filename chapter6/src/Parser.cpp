@@ -83,7 +83,7 @@ std::string Parser::_parseComp(std::string s)
     }
     pos = _comp.find(';');
     if (pos != std::string::npos) {
-        _comp = _comp.substr(0, pos - 1);
+        _comp = _comp.substr(0, pos);
     }
     return _comp;
 }

@@ -2,7 +2,10 @@
 #define ASSEMBLER_HPP
 
 #include <iostream>
+#include <string>
+#include <bitset>
 
 #include "Parser.hpp"
+#include "Code.hpp"
 
 #endif
