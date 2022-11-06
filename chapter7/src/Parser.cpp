@@ -108,6 +108,17 @@ std::string Parser::_parseArg1(std::string s)
 }
 
 
+void Parser::_parseArg2(std::string s)
+{
+    try {
+        _arg2 = std::stoi(s);
+    } catch(const std::exception& e) {
+        std::cerr << "arg2 is not a number" << std::endl;
+        std::exit(1);
+    }
+}
+
+
 bool Parser::advance()
 {
     std::string s;
@@ -120,11 +131,19 @@ bool Parser::advance()
     if (!s.empty()) {
         std::cout << s << ": ";
         s = _parseCommandType(s);
-        if (_commandType != CommandType::C_ARITHMETIC && \
+        if (_commandType != CommandType::C_ARITHMETIC &&
                 _commandType != CommandType::C_RETURN) {
             s = _parseArg1(s);
         }
-        std::cout << s << ": " << _arg1 << std::endl;
+        if (_commandType == CommandType::C_PUSH ||
+                _commandType == CommandType::C_POP ||
+                _commandType == CommandType::C_FUNCTION ||
+                _commandType == CommandType::C_CALL) {
+            _parseArg2(s);
+            std::cout << s << ": " << _arg2 << std::endl;
+        } else {
+            std::cout << std::endl;
+        }
     }
     return !s.empty();
 }

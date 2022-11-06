@@ -25,6 +25,7 @@ private:
     std::string _parseCommandType(std::string s);
     CommandType _discriminateCommandType(std::string& command);
     std::string _parseArg1(std::string s);
+    void _parseArg2(std::string s);
 
 public:
     static void makeCommandMap();
