@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     }
     DIR* dp = NULL;
     std::string outPath = fileCheck(argv[1], dp);
-    std::cout << outPath << std::endl;
+    Parser::makeCommandMap();
     // WIP ディレクトリの場合
     Parser parser(argv[1]);
     while (parser.hasMoreCommands() && parser.advance()) {

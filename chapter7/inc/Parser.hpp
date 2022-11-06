@@ -4,12 +4,15 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <map>
 
 #include "CommandType.hpp"
 
 class Parser
 {
 private:
+    static std::map<std::string, CommandType> _commandMap;
+
     std::ifstream _ifs;
     CommandType _commandType;
     std::string _arg1;
@@ -19,8 +22,12 @@ private:
     std::string _ltrim(std::string s);
     std::string _rtrim(std::string s);
     std::string _trim(std::string s);
+    std::string _parseCommandType(std::string s);
+    CommandType _discriminateCommandType(std::string& command);
 
 public:
+    static void makeCommandMap();
+
     Parser(std::string filePath);
     bool hasMoreCommands();
     bool advance();
