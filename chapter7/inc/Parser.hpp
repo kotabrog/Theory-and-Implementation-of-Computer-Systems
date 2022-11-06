@@ -1,0 +1,32 @@
+#ifndef PARSER_HPP
+#define PARSER_HPP
+
+#include <iostream>
+#include <fstream>
+#include <string>
+
+#include "CommandType.hpp"
+
+class Parser
+{
+private:
+    std::ifstream _ifs;
+    CommandType _commandType;
+    std::string _arg1;
+    int _arg2;
+
+    std::string _eraseComment(std::string s);
+    std::string _ltrim(std::string s);
+    std::string _rtrim(std::string s);
+    std::string _trim(std::string s);
+
+public:
+    Parser(std::string filePath);
+    bool hasMoreCommands();
+    bool advance();
+    CommandType commandType() {return _commandType;}
+    std::string arg1() {return _arg1;}
+    int arg2() {return _arg2;}
+};
+
+#endif
