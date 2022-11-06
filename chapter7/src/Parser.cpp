@@ -94,6 +94,20 @@ std::string Parser::_parseCommandType(std::string s)
 }
 
 
+std::string Parser::_parseArg1(std::string s)
+{
+    // WIP nonwhite space delimiter (\r\t\f\v)
+    std::size_t pos = s.find(' ');
+    _arg1 = s.substr(0, pos);
+    if (_arg1.empty()) {
+        std::cerr << "arg1 does not exist" << std::endl;
+        std::exit(1);
+    }
+    s.erase(s.begin(), s.begin() + _arg1.length());
+    return _ltrim(s);
+}
+
+
 bool Parser::advance()
 {
     std::string s;
@@ -106,7 +120,11 @@ bool Parser::advance()
     if (!s.empty()) {
         std::cout << s << ": ";
         s = _parseCommandType(s);
-        std::cout << s << ": " << static_cast<int>(_commandType) << std::endl;
+        if (_commandType != CommandType::C_ARITHMETIC && \
+                _commandType != CommandType::C_RETURN) {
+            s = _parseArg1(s);
+        }
+        std::cout << s << ": " << _arg1 << std::endl;
     }
     return !s.empty();
 }
