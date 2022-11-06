@@ -5,6 +5,8 @@
 #include <string>
 #include <dirent.h>
 
+#include "CommandType.hpp"
 #include "Parser.hpp"
+#include "CodeWriter.hpp"
 
 #endif

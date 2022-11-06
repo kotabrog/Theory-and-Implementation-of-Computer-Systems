@@ -3,6 +3,7 @@ NAME := VMtranslator
 SOURCES_FOLDER = src/
 SOURCES =	main.cpp \
 			Parser.cpp \
+			CodeWriter.cpp \
 
 SOURCES_PREFIXED = $(addprefix $(SOURCES_FOLDER), $(SOURCES))
 
@@ -10,6 +11,7 @@ INCLUDES_FOLDER = inc/
 INCLUDES =	VMtranslator.hpp \
 			Parser.hpp \
 			CommandType.hpp \
+			CodeWriter.hpp \
 
 INCLUDES_PREFIXED = $(addprefix $(INCLUDES_FOLDER), $(INCLUDES))
 

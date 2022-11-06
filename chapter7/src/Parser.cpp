@@ -140,6 +140,7 @@ bool Parser::advance()
                 _commandType == CommandType::C_CALL) {
             _parseArg2(s);
         }
+        return true;
     }
-    return !s.empty();
+    return false;
 }

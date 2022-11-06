@@ -1,6 +1,6 @@
 #include "../inc/VMtranslator.hpp"
 
-std::string getDirName(const std::string &path)
+std::string getFileName(const std::string &path)
 {
     // WIP If the path ends with a slash
     size_t pos;
@@ -15,7 +15,7 @@ std::string getDirName(const std::string &path)
         return path.substr(pos + 1);
     }
 
-    return "";
+    return path;
 }
 
 std::string fileCheck(std::string fileName, DIR* dp)
@@ -23,7 +23,7 @@ std::string fileCheck(std::string fileName, DIR* dp)
     std::string outPath;
     dp = opendir(fileName.c_str());
     if (dp != NULL) {
-        outPath = fileName + "/" + getDirName(fileName) + ".asm";
+        outPath = fileName + "/" + getFileName(fileName) + ".asm";
     } else {
         std::size_t pos = fileName.rfind('.');
         if (pos == std::string::npos || fileName.substr(pos, 3) != ".vm") {
@@ -44,9 +44,17 @@ int main(int argc, char** argv)
     DIR* dp = NULL;
     std::string outPath = fileCheck(argv[1], dp);
     Parser::makeCommandMap();
+    CodeWriter codeWriter(outPath);
     // WIP ディレクトリの場合
     Parser parser(argv[1]);
+    codeWriter.setFileName(getFileName(argv[1]));
     while (parser.hasMoreCommands() && parser.advance()) {
-        ;
+        if (parser.commandType() == CommandType::C_ARITHMETIC) {
+            codeWriter.writeArithmetic(parser.arg1());
+        } else if (parser.commandType() == CommandType::C_PUSH ||
+                   parser.commandType() == CommandType::C_POP) {
+            codeWriter.writePushPop(parser.commandType(), parser.arg1(),
+                                    parser.arg2());
+        }
     }
 }
