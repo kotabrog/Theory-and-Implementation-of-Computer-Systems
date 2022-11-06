@@ -129,7 +129,6 @@ bool Parser::advance()
         s = _trim(s);
     }
     if (!s.empty()) {
-        std::cout << s << ": ";
         s = _parseCommandType(s);
         if (_commandType != CommandType::C_ARITHMETIC &&
                 _commandType != CommandType::C_RETURN) {
@@ -140,9 +139,6 @@ bool Parser::advance()
                 _commandType == CommandType::C_FUNCTION ||
                 _commandType == CommandType::C_CALL) {
             _parseArg2(s);
-            std::cout << s << ": " << _arg2 << std::endl;
-        } else {
-            std::cout << std::endl;
         }
     }
     return !s.empty();
