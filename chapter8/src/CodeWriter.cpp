@@ -287,3 +287,49 @@ void CodeWriter::writePushPop(CommandType command, std::string segment, int inde
     else if (command == CommandType::C_POP && segment == "static")
         _writeStaticPop(index);
 }
+
+
+void CodeWriter::writeLabel(std::string label)
+{
+    if (_functionNames.size() == 0)
+        _writeLabel(_fileName + "$" + label);
+    else
+        _writeLabel(_functionNames.back() + "$" + label);
+}
+
+
+void CodeWriter::writeGoto(std::string label)
+{
+    if (_functionNames.size() == 0)
+        _writeACommand(_fileName + "$" + label);
+    else
+        _writeACommand(_functionNames.back() + "$" + label);
+    _writeCCommand("", "0", "JMP");
+}
+
+
+void CodeWriter::writeIf(std::string label)
+{
+    _writePopStackAndSetA();
+    _writeCCommand("D", "M", "");
+    if (_functionNames.size() == 0)
+        _writeACommand(_fileName + "$" + label);
+    else
+        _writeACommand(_functionNames.back() + "$" + label);
+    _writeCCommand("", "D", "JNE");
+}
+
+
+void CodeWriter::writeFunction(std::string functionName, int numLocals)
+{
+    _functionNames.push_back(functionName);
+    for (int i = 0; i < numLocals; ++i) {
+        _writeConstantPush(0);
+    }
+}
+
+
+void CodeWriter::writeReturn()
+{
+    
+}
