@@ -1,11 +1,18 @@
 #include "../inc/CodeWriter.hpp"
 
 int CodeWriter::_relationalLabelNum = 0;
+int CodeWriter::_returnAddressNum = 0;
 
 
 std::string CodeWriter::_makeRelationalLabel()
 {
     return "RELATIONAL" + std::to_string(_relationalLabelNum++);
+}
+
+
+std::string CodeWriter::_makeReturnAddress()
+{
+    return "RETURNADDRESS" + std::to_string(_returnAddressNum++);
 }
 
 
@@ -291,19 +298,19 @@ void CodeWriter::writePushPop(CommandType command, std::string segment, int inde
 
 void CodeWriter::writeLabel(std::string label)
 {
-    if (_functionNames.size() == 0)
+    if (_functionNames.empty())
         _writeLabel(_fileName + "$" + label);
     else
-        _writeLabel(_functionNames.back() + "$" + label);
+        _writeLabel(_functionNames + "$" + label);
 }
 
 
 void CodeWriter::writeGoto(std::string label)
 {
-    if (_functionNames.size() == 0)
+    if (_functionNames.empty())
         _writeACommand(_fileName + "$" + label);
     else
-        _writeACommand(_functionNames.back() + "$" + label);
+        _writeACommand(_functionNames + "$" + label);
     _writeCCommand("", "0", "JMP");
 }
 
@@ -312,17 +319,18 @@ void CodeWriter::writeIf(std::string label)
 {
     _writePopStackAndSetA();
     _writeCCommand("D", "M", "");
-    if (_functionNames.size() == 0)
+    if (_functionNames.empty())
         _writeACommand(_fileName + "$" + label);
     else
-        _writeACommand(_functionNames.back() + "$" + label);
+        _writeACommand(_functionNames + "$" + label);
     _writeCCommand("", "D", "JNE");
 }
 
 
 void CodeWriter::writeFunction(std::string functionName, int numLocals)
 {
-    _functionNames.push_back(functionName);
+    _writeLabel(functionName);
+    _functionNames = functionName;
     for (int i = 0; i < numLocals; ++i) {
         _writeConstantPush(0);
     }
@@ -331,5 +339,120 @@ void CodeWriter::writeFunction(std::string functionName, int numLocals)
 
 void CodeWriter::writeReturn()
 {
-    
+    // FRAME = LCL
+    _writeACommand("LCL");
+    _writeCCommand("D", "M", "");
+    _writeDSetR(13);
+
+    // *ARG = pop()
+    _writePopStackAndSetA();
+    _writeCCommand("D", "M", "");
+    _writeACommand("ARG");
+    _writeCCommand("A", "M", "");
+    _writeCCommand("M", "D", "");
+
+    // SP = ARG+1
+    _writeACommand("ARG");
+    _writeCCommand("D", "M+1", "");
+    _writeACommand("SP");
+    _writeCCommand("M", "D", "");
+
+    // THAT = *(FRAME-1)
+    _writeACommand("R" + std::to_string(13));
+    _writeCCommand("A", "M-1", "");
+    _writeCCommand("D", "M", "");
+    _writeACommand("THAT");
+    _writeCCommand("M", "D", "");
+
+    // THIS = *(FRAME-2)
+    _writeACommand("R" + std::to_string(13));
+    _writeCCommand("A", "M-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("D", "M", "");
+    _writeACommand("THIS");
+    _writeCCommand("M", "D", "");
+
+    // ARG = *(FRAME-3)
+    _writeACommand("R" + std::to_string(13));
+    _writeCCommand("A", "M-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("D", "M", "");
+    _writeACommand("ARG");
+    _writeCCommand("M", "D", "");
+
+    // LCL = *(FRAME-4)
+    _writeACommand("R" + std::to_string(13));
+    _writeCCommand("A", "M-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("D", "M", "");
+    _writeACommand("LCL");
+    _writeCCommand("M", "D", "");
+
+    // RET = *(FRAME-5)
+    // goto RET
+    _writeACommand("R" + std::to_string(13));
+    _writeCCommand("A", "M-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "M", "");
+    _writeCCommand("", "0", "JMP");
+}
+
+
+void CodeWriter::writeCall(std::string functionName, int numArgs)
+{
+    std::string returnAddress = _makeReturnAddress();
+
+    _writeACommand(returnAddress);
+    _writeCCommand("D", "A", "");
+    _writeDPush();
+    _writeACommand("LCL");
+    _writeCCommand("D", "M", "");
+    _writeDPush();
+    _writeACommand("ARG");
+    _writeCCommand("D", "M", "");
+    _writeDPush();
+    _writeACommand("THIS");
+    _writeCCommand("D", "M", "");
+    _writeDPush();
+    _writeACommand("THAT");
+    _writeCCommand("D", "M", "");
+    _writeDPush();
+
+    // ARG = SP-n-5
+    _writeACommand("SP");
+    _writeCCommand("D", "M-1", "");
+    for (int i = 0; i < 3 + numArgs; ++i)
+        _writeCCommand("D", "D-1", "");
+    _writeACommand("ARG");
+    _writeCCommand("M", "D-1", "");
+
+    // LCL = SP
+    _writeACommand("SP");
+    _writeCCommand("D", "M", "");
+    _writeACommand("LCL");
+    _writeCCommand("M", "D", "");
+
+    // goto f
+    _writeACommand(functionName);
+    _writeCCommand("", "0", "JMP");
+
+    _writeLabel(returnAddress);
+}
+
+
+void CodeWriter::writeInit()
+{
+    _writeACommand(256);
+    _writeCCommand("D", "A", "");
+    _writeACommand("SP");
+    _writeCCommand("M", "D", "");
+    writeCall("Sys.init", 0);
+    // _writeACommand("Sys.init");
+    // _writeCCommand("", "0", "JMP");
 }

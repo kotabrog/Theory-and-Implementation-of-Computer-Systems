@@ -12,12 +12,14 @@ class CodeWriter
 {
 private:
     static int _relationalLabelNum;
+    static int _returnAddressNum;
 
     static std::string _makeRelationalLabel();
+    static std::string _makeReturnAddress();
 
     std::ofstream _ofs;
     std::string _fileName;
-    std::vector<std::string> _functionNames;
+    std::string _functionNames;
 
     void _writeACommand(std::string str);
     void _writeACommand(int value);
@@ -53,6 +55,8 @@ public:
     void writeIf(std::string label);
     void writeFunction(std::string functionName, int numLocals);
     void writeReturn();
+    void writeCall(std::string functionName, int numArgs);
+    void writeInit();
 };
 
 #endif

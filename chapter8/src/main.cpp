@@ -21,7 +21,7 @@ std::string getFileName(const std::string &path)
 std::string fileCheck(std::string fileName, DIR* dp)
 {
     std::string outPath;
-    dp = opendir(fileName.c_str());
+    // dp = opendir(fileName.c_str());
     if (dp != NULL) {
         outPath = fileName + "/" + getFileName(fileName) + ".asm";
     } else {
@@ -35,19 +35,10 @@ std::string fileCheck(std::string fileName, DIR* dp)
     return outPath;
 }
 
-int main(int argc, char** argv)
+void oneFileCompile(std::string filePath, CodeWriter& codeWriter)
 {
-    if (argc != 2) {
-        std::cerr << "specify a file name" << std::endl;
-        std::exit(1);
-    }
-    DIR* dp = NULL;
-    std::string outPath = fileCheck(argv[1], dp);
-    Parser::makeCommandMap();
-    CodeWriter codeWriter(outPath);
-    // WIP ディレクトリの場合
-    Parser parser(argv[1]);
-    codeWriter.setFileName(getFileName(argv[1]));
+    Parser parser(filePath);
+    codeWriter.setFileName(getFileName(filePath));
     while (parser.hasMoreCommands() && parser.advance()) {
         CommandType commandType = parser.commandType();
         if (commandType == CommandType::C_ARITHMETIC) {
@@ -61,6 +52,42 @@ int main(int argc, char** argv)
             codeWriter.writeGoto(parser.arg1());
         } else if (commandType == CommandType::C_IF) {
             codeWriter.writeIf(parser.arg1());
+        } else if (commandType == CommandType::C_FUNCTION) {
+            codeWriter.writeFunction(parser.arg1(), parser.arg2());
+        } else if (commandType == CommandType::C_RETURN) {
+            codeWriter.writeReturn();
+        } else if (commandType == CommandType::C_CALL) {
+            codeWriter.writeCall(parser.arg1(), parser.arg2());
+        }
+    }
+}
+
+int main(int argc, char** argv)
+{
+    if (argc != 2) {
+        std::cerr << "specify a file name" << std::endl;
+        std::exit(1);
+    }
+    DIR* dp = NULL;
+    dp = opendir(argv[1]);
+    std::string outPath = fileCheck(argv[1], dp);
+    std::string inputPath(argv[1]);
+    Parser::makeCommandMap();
+    CodeWriter codeWriter(outPath);
+    // WIP ディレクトリの場合
+    if (dp == NULL) {
+        oneFileCompile(inputPath, codeWriter);
+    } else {
+        codeWriter.writeInit();
+        dirent* entry = readdir(dp);
+        while (entry != NULL) {
+            std::string fileName = entry->d_name;
+            std::size_t pos = fileName.rfind('.');
+            if (pos != std::string::npos && fileName.substr(pos, 3) == ".vm") {
+                std::cout << "Compile: " << fileName << std::endl;
+                oneFileCompile(inputPath + "/" + fileName, codeWriter);
+            }
+            entry = readdir(dp);
         }
     }
 }
