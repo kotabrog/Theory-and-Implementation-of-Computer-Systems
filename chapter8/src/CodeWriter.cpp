@@ -344,6 +344,16 @@ void CodeWriter::writeReturn()
     _writeCCommand("D", "M", "");
     _writeDSetR(13);
 
+    // RET = *(FRAME-5)
+    _writeACommand("R" + std::to_string(13));
+    _writeCCommand("A", "M-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("A", "A-1", "");
+    _writeCCommand("D", "M", "");
+    _writeDSetR(14);
+
     // *ARG = pop()
     _writePopStackAndSetA();
     _writeCCommand("D", "M", "");
@@ -391,14 +401,8 @@ void CodeWriter::writeReturn()
     _writeACommand("LCL");
     _writeCCommand("M", "D", "");
 
-    // RET = *(FRAME-5)
     // goto RET
-    _writeACommand("R" + std::to_string(13));
-    _writeCCommand("A", "M-1", "");
-    _writeCCommand("A", "A-1", "");
-    _writeCCommand("A", "A-1", "");
-    _writeCCommand("A", "A-1", "");
-    _writeCCommand("A", "A-1", "");
+    _writeACommand("R" + std::to_string(14));
     _writeCCommand("A", "M", "");
     _writeCCommand("", "0", "JMP");
 }
@@ -453,6 +457,4 @@ void CodeWriter::writeInit()
     _writeACommand("SP");
     _writeCCommand("M", "D", "");
     writeCall("Sys.init", 0);
-    // _writeACommand("Sys.init");
-    // _writeCCommand("", "0", "JMP");
 }
