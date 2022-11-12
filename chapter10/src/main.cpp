@@ -29,12 +29,32 @@ std::string fileCheck(std::string filePath)
 }
 
 
-void oneFileCompile(std::string filePath)
+void oneFileCompile(std::string filePath, std::string outPath)
 {
     JackTokenizer jackTokenizer(filePath);
+    std::ofstream ofs(outPath);
+    ofs << "<tokens>" << std::endl;
     while (jackTokenizer.hasMoreTokens() && jackTokenizer.advance()) {
-        ;
+        if (jackTokenizer.tokenType() == TokenType::KEYWORD) {
+            ofs << "<keyword> " << jackTokenizer.stringVal() << "</keyword>" << std::endl;
+        } else if (jackTokenizer.tokenType() == TokenType::SYMBOL) {
+            if (jackTokenizer.symbol() == '<')
+                ofs << "<symbol> " << "&lt;" << " </symbol>" << std::endl;
+            else if (jackTokenizer.symbol() == '>')
+                ofs << "<symbol> " << "&gt;" << " </symbol>" << std::endl;
+            else if (jackTokenizer.symbol() == '&')
+                ofs << "<symbol> " << "&amp;" << " </symbol>" << std::endl;
+            else
+                ofs << "<symbol> " << jackTokenizer.symbol() << " </symbol>" << std::endl;
+        } else if (jackTokenizer.tokenType() == TokenType::IDENTIFIER) {
+            ofs << "<identifier> " << jackTokenizer.identifier() << " </identifier>" << std::endl;
+        } else if (jackTokenizer.tokenType() == TokenType::INT_CONST) {
+            ofs << "<integerConstant> " << jackTokenizer.intVal() << " </integerConstant>" << std::endl;
+        } else {
+            ofs << "<stringConstant> " << jackTokenizer.stringVal() << " </stringConstant>" << std::endl;
+        }
     }
+    ofs << "</tokens>" << std::endl;
 }
 
 
@@ -47,6 +67,7 @@ int main(int argc, char** argv)
     DIR* dp = NULL;
     dp = opendir(argv[1]);
     std::string inputPath(argv[1]);
+    JackTokenizer::makeTable();
 
     if (dp == NULL) {
         std::string outPath = fileCheck(inputPath);
@@ -54,16 +75,15 @@ int main(int argc, char** argv)
             std::cerr << "specify files with .jack extension" << std::endl;
             std::exit(1);
         }
-        oneFileCompile(inputPath);
+        oneFileCompile(inputPath, outPath);
     } else {
         dirent* entry = readdir(dp);
         while (entry != NULL) {
             std::string fileName = entry->d_name;
             std::string outName = fileCheck(fileName);
             if (!outName.empty()) {
-                // std::string outPath = inputPath + "/" + outName;
                 std::cout << "Compile: " << fileName << std::endl;
-                oneFileCompile(inputPath + "/" + fileName);
+                oneFileCompile(inputPath + "/" + fileName, inputPath + "/" + outName);
             }
             entry = readdir(dp);
         }
