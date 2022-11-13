@@ -31,30 +31,8 @@ std::string fileCheck(std::string filePath)
 
 void oneFileCompile(std::string filePath, std::string outPath)
 {
-    JackTokenizer jackTokenizer(filePath);
-    std::ofstream ofs(outPath);
-    ofs << "<tokens>" << std::endl;
-    while (jackTokenizer.hasMoreTokens() && jackTokenizer.advance()) {
-        if (jackTokenizer.tokenType() == TokenType::KEYWORD) {
-            ofs << "<keyword> " << jackTokenizer.stringVal() << "</keyword>" << std::endl;
-        } else if (jackTokenizer.tokenType() == TokenType::SYMBOL) {
-            if (jackTokenizer.symbol() == '<')
-                ofs << "<symbol> " << "&lt;" << " </symbol>" << std::endl;
-            else if (jackTokenizer.symbol() == '>')
-                ofs << "<symbol> " << "&gt;" << " </symbol>" << std::endl;
-            else if (jackTokenizer.symbol() == '&')
-                ofs << "<symbol> " << "&amp;" << " </symbol>" << std::endl;
-            else
-                ofs << "<symbol> " << jackTokenizer.symbol() << " </symbol>" << std::endl;
-        } else if (jackTokenizer.tokenType() == TokenType::IDENTIFIER) {
-            ofs << "<identifier> " << jackTokenizer.identifier() << " </identifier>" << std::endl;
-        } else if (jackTokenizer.tokenType() == TokenType::INT_CONST) {
-            ofs << "<integerConstant> " << jackTokenizer.intVal() << " </integerConstant>" << std::endl;
-        } else {
-            ofs << "<stringConstant> " << jackTokenizer.stringVal() << " </stringConstant>" << std::endl;
-        }
-    }
-    ofs << "</tokens>" << std::endl;
+    CompilationEngine compilationEngine(filePath, outPath);
+    compilationEngine.CompileClass();
 }
 
 

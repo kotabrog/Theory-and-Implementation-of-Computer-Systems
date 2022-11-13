@@ -1,5 +1,5 @@
-#ifndef PARSER_HPP
-#define PARSER_HPP
+#ifndef JACKTOKENIZER_HPP
+#define JACKTOKENIZER_HPP
 
 #include <iostream>
 #include <fstream>

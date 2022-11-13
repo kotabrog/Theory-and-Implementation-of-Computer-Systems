@@ -7,5 +7,6 @@
 
 #include "Type.hpp"
 #include "JackTokenizer.hpp"
+#include "CompilationEngine.hpp"
 
 #endif

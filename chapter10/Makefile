@@ -2,6 +2,7 @@ NAME := JackAnalyzer
 SOURCES_FOLDER = src/
 SOURCES =	main.cpp \
 			JackTokenizer.cpp \
+			CompilationEngine.cpp \
 
 SOURCES_PREFIXED = $(addprefix $(SOURCES_FOLDER), $(SOURCES))
 
@@ -9,6 +10,7 @@ INCLUDES_FOLDER = inc/
 INCLUDES =	JackAnalyzer.hpp \
 			Type.hpp \
 			JackTokenizer.hpp \
+			CompilationEngine.hpp \
 
 INCLUDES_PREFIXED = $(addprefix $(INCLUDES_FOLDER), $(INCLUDES))
 
