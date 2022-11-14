@@ -44,6 +44,7 @@ private:
     void _istype(std::string errMessage);
     bool _isKeywordConstant();
     bool _isOp();
+    bool _isUnaryOp();
 
     void compileClassVarDec();
     void compileSubroutine();
@@ -57,7 +58,7 @@ private:
     void compileDo();
     void compileReturn();
     void compileExpression();
-    void compileSubroutineCall();
+    void compileSubroutineCall(std::string subroutineName = "");
     void compileTerm();
     void compileExpressionList();
 

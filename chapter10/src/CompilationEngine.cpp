@@ -58,6 +58,12 @@ std::string CompilationEngine::_getTokenValueByType()
     if (_jackTokenizer.tokenType() == TokenType::KEYWORD) {
         return _jackTokenizer.stringVal();
     } else if (_jackTokenizer.tokenType() == TokenType::SYMBOL) {
+        if (_jackTokenizer.symbol() == '<')
+            return "&lt;";
+        if (_jackTokenizer.symbol() == '>')
+            return "&gt;";
+        if (_jackTokenizer.symbol() == '&')
+            return "&amp;";
         return {_jackTokenizer.symbol()};
     } else if (_jackTokenizer.tokenType() == TokenType::IDENTIFIER) {
         return _jackTokenizer.identifier();
@@ -219,6 +225,13 @@ bool CompilationEngine::_isOp()
 }
 
 
+bool CompilationEngine::_isUnaryOp()
+{
+    return _checkSymbol('-') ||
+            _checkSymbol('~');
+}
+
+
 void CompilationEngine::compileClassVarDec()
 {
     _writeBegin("classVarDec");
@@ -294,9 +307,41 @@ void CompilationEngine::compileVarDec()
 void CompilationEngine::compileTerm()
 {
     _writeBegin("term");
-    // WIP
-    _writeBetween();
-    _nextTokenError();
+    if (_checkTokenType(TokenType::INT_CONST) ||
+            _checkTokenType(TokenType::STRING_CONST) ||
+            _isKeywordConstant()) {
+        _writeBetween();
+        _nextTokenError();
+    } else if (_checkSymbol('(')) {
+        _writeBetween();
+        _nextTokenError();
+        compileExpression();
+        _checkSymbol(')', "Not compileTerm )");
+        _writeBetween();
+        _nextTokenError();
+    } else if (_isUnaryOp()) {
+        _writeBetween();
+        _nextTokenError();
+        compileTerm();
+    } else {
+        _checkTokenType(TokenType::IDENTIFIER, "Not compileTerm IDENTIFIER");
+        std::string identifier = _jackTokenizer.identifier();
+        _nextTokenError();
+        if (_checkSymbol('[')) {
+            _writeBetween(TokenType::IDENTIFIER, identifier);
+            _writeBetween();
+            _nextTokenError();
+            compileExpression();
+            _checkSymbol(']', "Not compileTerm ]");
+            _writeBetween();
+            _nextTokenError();
+        } else if (_checkSymbol('.') || _checkSymbol('(')){
+            compileSubroutineCall(identifier);
+            _nextTokenError();
+        } else {
+            _writeBetween(TokenType::IDENTIFIER, identifier);
+        }
+    }
     _writeEnd("term");
 }
 
@@ -329,11 +374,15 @@ void CompilationEngine::compileExpressionList()
 }
 
 
-void CompilationEngine::compileSubroutineCall()
+void CompilationEngine::compileSubroutineCall(std::string subroutineName)
 {
-    _checkTokenType(TokenType::IDENTIFIER, "Not SubroutineCall subroutineName");
-    _writeBetween();
-    _nextTokenError();
+    if (subroutineName.empty()) {
+        _checkTokenType(TokenType::IDENTIFIER, "Not SubroutineCall subroutineName");
+        _writeBetween();
+        _nextTokenError();
+    } else {
+        _writeBetween(TokenType::IDENTIFIER, subroutineName);
+    }
     if (_checkSymbol('.')) {
         _writeBetween();
         _nextTokenError();
