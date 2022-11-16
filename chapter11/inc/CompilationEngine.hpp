@@ -17,6 +17,7 @@ private:
     std::ofstream _ofs;
     JackTokenizer _jackTokenizer;
     SymbolTable _symbolTable;
+    std::string _className;
 
     static void _makeTable();
 

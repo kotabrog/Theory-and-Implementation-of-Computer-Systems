@@ -296,18 +296,22 @@ void CompilationEngine::compileParameterList()
 {
     _writeBegin("parameterList");
     if (_istype()) {
+        std::string type = _typeToString();
         _writeBetween();
         _nextTokenError();
         _checkTokenType(TokenType::IDENTIFIER, "Not parameterList varName");
+        _symbolTable.define(_jackTokenizer.identifier(), type, Kind::ARG);
         _writeBetween();
         _nextTokenError();
         while (_checkSymbol(',')) {
             _writeBetween();
             _nextTokenError();
             _istype("Not parameterList type");
+            type = _typeToString();
             _writeBetween();
             _nextTokenError();
             _checkTokenType(TokenType::IDENTIFIER, "Not parameterList varName");
+            _symbolTable.define(_jackTokenizer.identifier(), type, Kind::ARG);
             _writeBetween();
             _nextTokenError();
         }
@@ -322,15 +326,18 @@ void CompilationEngine::compileVarDec()
     _writeBetween();
     _nextTokenError();
     _istype("Not varDec type");
+    std::string type = _typeToString();
     _writeBetween();
     _nextTokenError();
     _checkTokenType(TokenType::IDENTIFIER, "Not varDec varName");
+    _symbolTable.define(_jackTokenizer.identifier(), type, Kind::VAR);
     _writeBetween();
     _nextTokenError();
     while (_checkSymbol(',')) {
         _writeBetween();
         _nextTokenError();
         _checkTokenType(TokenType::IDENTIFIER, "Not varDec varName");
+        _symbolTable.define(_jackTokenizer.identifier(), type, Kind::VAR);
         _writeBetween();
         _nextTokenError();
     }
@@ -589,6 +596,8 @@ void CompilationEngine::compileSubroutineBody()
 void CompilationEngine::compileSubroutine()
 {
     _writeBegin("subroutineDec");
+    _symbolTable.startSubroutine();
+    bool addThisFlag = (_jackTokenizer.keyWord() == KeyWord::METHOD);
     _writeBetween();
     _nextTokenError();
     if (!_checkKeyWord(KeyWord::VOID) && !_istype())
@@ -601,6 +610,9 @@ void CompilationEngine::compileSubroutine()
     _checkSymbol('(', "Not subroutineDec (");
     _writeBetween();
     _nextTokenError();
+    if (addThisFlag) {
+        _symbolTable.define("this", _className, Kind::ARG);
+    }
     compileParameterList();
     _checkSymbol(')', "Not subroutineDec )");
     _writeBetween();
@@ -619,6 +631,7 @@ void CompilationEngine::CompileClass()
     _nextTokenError();
     _checkTokenType(TokenType::IDENTIFIER, "Not class name");
     _writeBetween();
+    _className = _jackTokenizer.identifier();
     _nextTokenError();
     _checkSymbol('{', "Not class {");
     _writeBetween();
