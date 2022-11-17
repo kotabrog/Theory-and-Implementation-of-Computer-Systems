@@ -25,7 +25,7 @@ std::string fileCheck(std::string filePath)
     if (pos == std::string::npos || filePath.substr(pos, 5) != ".jack") {
         return "";
     }
-    return filePath.substr(0, pos) + ".xml";
+    return filePath.substr(0, pos) + ".vm";
 }
 
 

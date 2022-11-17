@@ -8,16 +8,19 @@
 #include "Type.hpp"
 #include "JackTokenizer.hpp"
 #include "SymbolTable.hpp"
+#include "VMWriter.hpp"
 
 class CompilationEngine
 {
 private:
     static std::map<TokenType, std::string> _tokenTypeTable;
 
+    // 削除予定
     std::ofstream _ofs;
     JackTokenizer _jackTokenizer;
     SymbolTable _symbolTable;
     std::string _className;
+    VMWriter _vmWriter;
 
     static void _makeTable();
 
@@ -40,6 +43,8 @@ private:
     void _writeBetween(std::string label, std::string s);
     void _writeBetween(TokenType label, std::string s);
     void _writeBetween();
+
+    void _writeArithmetic(char symbol);
 
     void _compileError(std::string s = "");
 
@@ -66,7 +71,7 @@ private:
     void compileExpression();
     void compileSubroutineCall(std::string subroutineName = "");
     void compileTerm();
-    void compileExpressionList();
+    int compileExpressionList();
 
 
 public:

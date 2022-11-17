@@ -26,6 +26,7 @@ private:
     int _fieldCount;
     int _argCount;
     int _varCount;
+    std::string _subroutineName;
 
 public:
     SymbolTable() : _staticCount(0), _fieldCount(0), _argCount(0), _varCount(0) {}
@@ -35,6 +36,8 @@ public:
     Kind kindOf(std::string name);
     std::string typeOf(std::string name);
     int indexOf(std::string name);
+    void setSubroutineName(std::string className, std::string name);
+    std::string getSubroutineName() {return _subroutineName;}
 };
 
 #endif

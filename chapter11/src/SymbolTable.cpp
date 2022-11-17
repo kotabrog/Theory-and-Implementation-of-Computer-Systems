@@ -6,6 +6,7 @@ void SymbolTable::startSubroutine()
     _subroutineTable.clear();
     _argCount = 0;
     _varCount = 0;
+    _subroutineName = "";
 }
 
 
@@ -76,4 +77,10 @@ int SymbolTable::indexOf(std::string name)
         return _subroutineTable[name].index;
     std::cerr << "compile error: indexOf: The variable is not defined" << std::endl;
     std::exit(1);
+}
+
+
+void SymbolTable::setSubroutineName(std::string className, std::string name)
+{
+    _subroutineName = className + "." + name;
 }

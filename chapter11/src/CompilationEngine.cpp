@@ -14,7 +14,7 @@ void CompilationEngine::_makeTable()
 
 
 CompilationEngine::CompilationEngine(std::string filePath, std::string outPath)
-    : _ofs(outPath), _jackTokenizer(filePath)
+    : _ofs(outPath + ".xml"), _jackTokenizer(filePath), _vmWriter(outPath)
 {
     if (!_ofs) {
         std::cerr << "Could not open file" << std::endl;
@@ -181,6 +181,30 @@ void CompilationEngine::_writeBetween(TokenType label, std::string s)
 void CompilationEngine::_writeBetween()
 {
     _writeBetween(_jackTokenizer.tokenType(), _getTokenValueByType());
+}
+
+
+void CompilationEngine::_writeArithmetic(char symbol)
+{
+    if (symbol == '+') {
+        _vmWriter.writeArithmetic(Command::ADD);
+    } else if (symbol == '-') {
+        _vmWriter.writeArithmetic(Command::SUB);
+    } else if (symbol == '*') {
+        _vmWriter.writeCall("Math.multiply", 2);
+    } else if (symbol == '/') {
+        _vmWriter.writeCall("Math.divide", 2);
+    } else if (symbol == '&') {
+        _vmWriter.writeArithmetic(Command::AND);
+    } else if (symbol == '|') {
+        _vmWriter.writeArithmetic(Command::OR);
+    } else if (symbol == '<') {
+        _vmWriter.writeArithmetic(Command::LT);
+    } else if (symbol == '>') {
+        _vmWriter.writeArithmetic(Command::GT);
+    } else if (symbol == '=') {
+        _vmWriter.writeArithmetic(Command::EQ);
+    }
 }
 
 
@@ -353,6 +377,9 @@ void CompilationEngine::compileTerm()
     if (_checkTokenType(TokenType::INT_CONST) ||
             _checkTokenType(TokenType::STRING_CONST) ||
             _isKeywordConstant()) {
+        if (_checkTokenType(TokenType::INT_CONST)) {
+            _vmWriter.writePush(Segment::CONST, _jackTokenizer.intVal());
+        }
         _writeBetween();
         _nextTokenError();
     } else if (_checkSymbol('(')) {
@@ -394,50 +421,63 @@ void CompilationEngine::compileExpression()
     _writeBegin("expression");
     compileTerm();
     while (_isOp()) {
+        char symbol = _jackTokenizer.symbol();
         _writeBetween();
         _nextTokenError();
         compileTerm();
+        _writeArithmetic(symbol);
     }
     _writeEnd("expression");
 }
 
 
-void CompilationEngine::compileExpressionList()
+int CompilationEngine::compileExpressionList()
 {
     _writeBegin("expressionList");
+    int count = 0;
     if (!_checkSymbol(')')) {
+        count += 1;
         compileExpression();
         while (_checkSymbol(',')) {
+            count += 1;
             _writeBetween();
             _nextTokenError();
             compileExpression();
         }
     }
     _writeEnd("expressionList");
+    return count;
 }
 
 
 void CompilationEngine::compileSubroutineCall(std::string subroutineName)
 {
+    std::string funcName;
     if (subroutineName.empty()) {
         _checkTokenType(TokenType::IDENTIFIER, "Not SubroutineCall subroutineName");
+        funcName = _jackTokenizer.identifier();
         _writeBetween();
         _nextTokenError();
     } else {
+        funcName = subroutineName;
         _writeBetween(TokenType::IDENTIFIER, subroutineName);
     }
     if (_checkSymbol('.')) {
         _writeBetween();
         _nextTokenError();
         _checkTokenType(TokenType::IDENTIFIER, "Not SubroutineCall subroutineName");
+        funcName += "." + _jackTokenizer.identifier();
         _writeBetween();
         _nextTokenError();
+    } else {
+        funcName = _className + "." + funcName;
     }
     _checkSymbol('(', "Not SubroutineCall (");
     _writeBetween();
     _nextTokenError();
-    compileExpressionList();
+    int count = compileExpressionList();
     _checkSymbol(')', "Not SubroutineCall )");
+    _vmWriter.writeCall(funcName, count);
     _writeBetween();
 }
 
@@ -532,6 +572,7 @@ void CompilationEngine::compileDo()
     _writeBetween();
     _nextTokenError();
     compileSubroutineCall();
+    _vmWriter.writePop(Segment::TEMP, 0);
     _nextTokenError();
     _checkSymbol(';', "Not doStatement ;");
     _writeBetween();
@@ -549,6 +590,7 @@ void CompilationEngine::compileReturn()
         compileExpression();
     }
     _checkSymbol(';', "Not returnStatement ;");
+    _vmWriter.writeReturn();
     _writeBetween();
     _nextTokenError();
     _writeEnd("returnStatement");
@@ -586,6 +628,7 @@ void CompilationEngine::compileSubroutineBody()
         compileVarDec();
         _nextTokenError();
     }
+    _vmWriter.writeFunction(_symbolTable.getSubroutineName(), _symbolTable.varCount(Kind::VAR));
     compileStatements();
     _checkSymbol('}', "Not subroutineBody }");
     _writeBetween();
@@ -605,6 +648,7 @@ void CompilationEngine::compileSubroutine()
     _writeBetween();
     _nextTokenError();
     _checkTokenType(TokenType::IDENTIFIER, "Not subroutineDec subroutineName");
+    _symbolTable.setSubroutineName(_className, _jackTokenizer.identifier());
     _writeBetween();
     _nextTokenError();
     _checkSymbol('(', "Not subroutineDec (");

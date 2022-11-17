@@ -4,6 +4,7 @@ SOURCES =	main.cpp \
 			JackTokenizer.cpp \
 			CompilationEngine.cpp \
 			SymbolTable.cpp \
+			VMWriter.cpp \
 
 SOURCES_PREFIXED = $(addprefix $(SOURCES_FOLDER), $(SOURCES))
 
@@ -13,6 +14,7 @@ INCLUDES =	JackAnalyzer.hpp \
 			JackTokenizer.hpp \
 			CompilationEngine.hpp \
 			SymbolTable.hpp \
+			VMWriter.hpp \
 
 INCLUDES_PREFIXED = $(addprefix $(INCLUDES_FOLDER), $(INCLUDES))
 
