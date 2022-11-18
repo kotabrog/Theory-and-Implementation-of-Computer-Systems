@@ -208,6 +208,52 @@ void CompilationEngine::_writeArithmetic(char symbol)
 }
 
 
+void CompilationEngine::_writeUnaryArithmetic(char symbol)
+{
+    if (symbol == '-') {
+        _vmWriter.writeArithmetic(Command::NEG);
+    } else if (symbol == '~') {
+        _vmWriter.writeArithmetic(Command::NOT);
+    }
+}
+
+
+void CompilationEngine::_writeKeywordConstant(KeyWord keyword)
+{
+    if (keyword == KeyWord::TRUE) {
+        _vmWriter.writePush(Segment::CONST, 1);
+        _vmWriter.writeArithmetic(Command::NEG);
+    } else if (keyword == KeyWord::FALSE || keyword == KeyWord::NULL_) {
+        _vmWriter.writePush(Segment::CONST, 0);
+    } else if (keyword == KeyWord::THIS) {
+        // 合ってるかわからない。要確認
+        _vmWriter.writePush(Segment::POINTER, 0);
+    }
+}
+
+
+Segment CompilationEngine::_kindToSymbol(Kind kind)
+{
+    if (kind == Kind::STATIC) {
+        return Segment::STATIC;
+    } else if (kind == Kind::FIELD) {
+        return Segment::THIS;
+    } else if (kind == Kind::ARG) {
+        return Segment::ARG;
+    } else if (kind == Kind::VAR) {
+        return Segment::LOCAL;
+    }
+    _compileError("_kindToSymbol no None");
+    return Segment::CONST;
+}
+
+
+std::string CompilationEngine::_makeLabel()
+{
+    return std::string("label") + std::to_string(_symbolTable.getAndIncrementLabelIndex());
+}
+
+
 void CompilationEngine::_compileError(std::string s)
 {
     std::cerr << "compile error: " << s << std::endl;
@@ -379,6 +425,8 @@ void CompilationEngine::compileTerm()
             _isKeywordConstant()) {
         if (_checkTokenType(TokenType::INT_CONST)) {
             _vmWriter.writePush(Segment::CONST, _jackTokenizer.intVal());
+        } else if (_isKeywordConstant()) {
+            _writeKeywordConstant(_jackTokenizer.keyWord());
         }
         _writeBetween();
         _nextTokenError();
@@ -390,12 +438,16 @@ void CompilationEngine::compileTerm()
         _writeBetween();
         _nextTokenError();
     } else if (_isUnaryOp()) {
+        char symbol = _jackTokenizer.symbol();
         _writeBetween();
         _nextTokenError();
         compileTerm();
+        _writeUnaryArithmetic(symbol);
     } else {
         _checkTokenType(TokenType::IDENTIFIER, "Not compileTerm IDENTIFIER");
         std::string identifier = _jackTokenizer.identifier();
+        Kind kind = _symbolTable.kindOf(identifier);
+        int index = kind == Kind::NONE ? 0 : _symbolTable.indexOf(identifier);
         _nextTokenError();
         if (_checkSymbol('[')) {
             _writeBetween(TokenType::IDENTIFIER, identifier);
@@ -409,6 +461,10 @@ void CompilationEngine::compileTerm()
             compileSubroutineCall(identifier);
             _nextTokenError();
         } else {
+            if (kind == Kind::NONE) {
+                _compileError("compileTerm Variables are not declared");
+            }
+            _vmWriter.writePush(_kindToSymbol(kind), index);
             _writeBetween(TokenType::IDENTIFIER, identifier);
         }
     }
@@ -488,6 +544,12 @@ void CompilationEngine::compileLet()
     _writeBetween();
     _nextTokenError();
     _checkTokenType(TokenType::IDENTIFIER, "Not letStatement varName");
+    std::string varName = _jackTokenizer.identifier();
+    Kind kind = _symbolTable.kindOf(varName);
+    if (kind == Kind::NONE) {
+        _compileError("compileLet Variables are not declared");
+    }
+    int index = _symbolTable.indexOf(varName);
     _writeBetween();
     _nextTokenError();
     if (_checkSymbol('[')) {
@@ -502,6 +564,7 @@ void CompilationEngine::compileLet()
     _writeBetween();
     _nextTokenError();
     compileExpression();
+    _vmWriter.writePop(_kindToSymbol(kind), index);
     _checkSymbol(';', "Not letStatement ;");
     _writeBetween();
     _nextTokenError();
@@ -512,6 +575,8 @@ void CompilationEngine::compileLet()
 void CompilationEngine::compileIf()
 {
     _writeBegin("ifStatement");
+    std::string label1 = _makeLabel();
+    std::string label2 = _makeLabel();
     _writeBetween();
     _nextTokenError();
     _checkSymbol('(', "Not ifStatement (");
@@ -519,12 +584,15 @@ void CompilationEngine::compileIf()
     _nextTokenError();
     compileExpression();
     _checkSymbol(')', "Not ifStatement )");
+    _vmWriter.writeIf(label1);
     _writeBetween();
     _nextTokenError();
     _checkSymbol('{', "Not ifStatement {");
     _writeBetween();
     _nextTokenError();
     compileStatements();
+    _vmWriter.writeGoto(label2);
+    _vmWriter.writeLabel(label1);
     _checkSymbol('}', "Not ifStatement }");
     _writeBetween();
     _nextTokenError();
@@ -539,6 +607,7 @@ void CompilationEngine::compileIf()
         _writeBetween();
         _nextTokenError();
     }
+    _vmWriter.writeLabel(label2);
     _writeEnd("ifStatement");
 }
 
@@ -546,12 +615,16 @@ void CompilationEngine::compileIf()
 void CompilationEngine::compileWhile()
 {
     _writeBegin("whileStatement");
+    std::string label1 = _makeLabel();
+    std::string label2 = _makeLabel();
+    _vmWriter.writeLabel(label1);
     _writeBetween();
     _nextTokenError();
     _checkSymbol('(', "Not whileStatement (");
     _writeBetween();
     _nextTokenError();
     compileExpression();
+    _vmWriter.writeIf(label2);
     _checkSymbol(')', "Not whileStatement )");
     _writeBetween();
     _nextTokenError();
@@ -559,7 +632,9 @@ void CompilationEngine::compileWhile()
     _writeBetween();
     _nextTokenError();
     compileStatements();
+    _vmWriter.writeGoto(label1);
     _checkSymbol('}', "Not whileStatement }");
+    _vmWriter.writeLabel(label2);
     _writeBetween();
     _nextTokenError();
     _writeEnd("whileStatement");

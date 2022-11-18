@@ -7,6 +7,7 @@ void SymbolTable::startSubroutine()
     _argCount = 0;
     _varCount = 0;
     _subroutineName = "";
+    _labelIndex = 0;
 }
 
 

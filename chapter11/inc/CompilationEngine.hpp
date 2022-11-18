@@ -45,6 +45,11 @@ private:
     void _writeBetween();
 
     void _writeArithmetic(char symbol);
+    void _writeUnaryArithmetic(char symbol);
+    void _writeKeywordConstant(KeyWord keyword);
+
+    Segment _kindToSymbol(Kind kind);
+    std::string _makeLabel();
 
     void _compileError(std::string s = "");
 
