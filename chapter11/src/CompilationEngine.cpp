@@ -447,7 +447,7 @@ void CompilationEngine::compileTerm()
         _checkTokenType(TokenType::IDENTIFIER, "Not compileTerm IDENTIFIER");
         std::string identifier = _jackTokenizer.identifier();
         Kind kind = _symbolTable.kindOf(identifier);
-        int index = kind == Kind::NONE ? 0 : _symbolTable.indexOf(identifier);
+        int index = (kind == Kind::NONE ? 0 : _symbolTable.indexOf(identifier));
         _nextTokenError();
         if (_checkSymbol('[')) {
             _writeBetween(TokenType::IDENTIFIER, identifier);
@@ -509,6 +509,7 @@ int CompilationEngine::compileExpressionList()
 void CompilationEngine::compileSubroutineCall(std::string subroutineName)
 {
     std::string funcName;
+    bool pushThisFlag = false;
     if (subroutineName.empty()) {
         _checkTokenType(TokenType::IDENTIFIER, "Not SubroutineCall subroutineName");
         funcName = _jackTokenizer.identifier();
@@ -522,16 +523,29 @@ void CompilationEngine::compileSubroutineCall(std::string subroutineName)
         _writeBetween();
         _nextTokenError();
         _checkTokenType(TokenType::IDENTIFIER, "Not SubroutineCall subroutineName");
-        funcName += "." + _jackTokenizer.identifier();
+        Kind kind = _symbolTable.kindOf(funcName);
+        if (kind != Kind::NONE) {
+            int index = _symbolTable.indexOf(funcName);
+            funcName = _symbolTable.typeOf(funcName) + "." + _jackTokenizer.identifier();
+            _vmWriter.writePush(_kindToSymbol(kind), index);
+            pushThisFlag = true;
+        } else {
+            funcName += "." + _jackTokenizer.identifier();
+        }
         _writeBetween();
         _nextTokenError();
     } else {
+        _vmWriter.writePush(Segment::POINTER, 0);
+        pushThisFlag = true;
         funcName = _className + "." + funcName;
     }
     _checkSymbol('(', "Not SubroutineCall (");
     _writeBetween();
     _nextTokenError();
     int count = compileExpressionList();
+    if (pushThisFlag) {
+        count += 1;
+    }
     _checkSymbol(')', "Not SubroutineCall )");
     _vmWriter.writeCall(funcName, count);
     _writeBetween();
@@ -584,6 +598,7 @@ void CompilationEngine::compileIf()
     _nextTokenError();
     compileExpression();
     _checkSymbol(')', "Not ifStatement )");
+    _vmWriter.writeArithmetic(Command::NOT);
     _vmWriter.writeIf(label1);
     _writeBetween();
     _nextTokenError();
@@ -624,6 +639,7 @@ void CompilationEngine::compileWhile()
     _writeBetween();
     _nextTokenError();
     compileExpression();
+    _vmWriter.writeArithmetic(Command::NOT);
     _vmWriter.writeIf(label2);
     _checkSymbol(')', "Not whileStatement )");
     _writeBetween();
@@ -704,6 +720,14 @@ void CompilationEngine::compileSubroutineBody()
         _nextTokenError();
     }
     _vmWriter.writeFunction(_symbolTable.getSubroutineName(), _symbolTable.varCount(Kind::VAR));
+    if (_symbolTable.getSubroutineType() == KeyWord::METHOD) {
+        _vmWriter.writePush(Segment::ARG, 0);
+        _vmWriter.writePop(Segment::POINTER, 0);
+    } else if (_symbolTable.getSubroutineType() == KeyWord::CONSTRUCTOR) {
+        _vmWriter.writePush(Segment::CONST, _symbolTable.varCount(Kind::FIELD));
+        _vmWriter.writeCall("Memory.alloc", 1);
+        _vmWriter.writePop(Segment::POINTER, 0);
+    }
     compileStatements();
     _checkSymbol('}', "Not subroutineBody }");
     _writeBetween();
@@ -715,7 +739,7 @@ void CompilationEngine::compileSubroutine()
 {
     _writeBegin("subroutineDec");
     _symbolTable.startSubroutine();
-    bool addThisFlag = (_jackTokenizer.keyWord() == KeyWord::METHOD);
+    _symbolTable.setSubroutineType(_jackTokenizer.keyWord());
     _writeBetween();
     _nextTokenError();
     if (!_checkKeyWord(KeyWord::VOID) && !_istype())
@@ -729,7 +753,7 @@ void CompilationEngine::compileSubroutine()
     _checkSymbol('(', "Not subroutineDec (");
     _writeBetween();
     _nextTokenError();
-    if (addThisFlag) {
+    if (_symbolTable.getSubroutineType() == KeyWord::METHOD) {
         _symbolTable.define("this", _className, Kind::ARG);
     }
     compileParameterList();

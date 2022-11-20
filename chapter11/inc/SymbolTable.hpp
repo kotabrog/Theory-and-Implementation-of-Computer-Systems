@@ -28,6 +28,7 @@ private:
     int _varCount;
     std::string _subroutineName;
     int _labelIndex;
+    KeyWord _subroutineType;
 
 public:
     SymbolTable() : _staticCount(0), _fieldCount(0), _argCount(0), _varCount(0) {}
@@ -40,6 +41,8 @@ public:
     void setSubroutineName(std::string className, std::string name);
     std::string getSubroutineName() {return _subroutineName;}
     int getAndIncrementLabelIndex() {return _labelIndex++;}
+    void setSubroutineType(KeyWord keyword) {_subroutineType = keyword;}
+    KeyWord getSubroutineType() {return _subroutineType;}
 };
 
 #endif

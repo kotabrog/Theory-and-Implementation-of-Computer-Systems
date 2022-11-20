@@ -8,6 +8,7 @@ void SymbolTable::startSubroutine()
     _varCount = 0;
     _subroutineName = "";
     _labelIndex = 0;
+    _subroutineType = KeyWord::FUNCTION;
 }
 
 
