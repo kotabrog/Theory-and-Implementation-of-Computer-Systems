@@ -47,6 +47,7 @@ private:
     void _writeArithmetic(char symbol);
     void _writeUnaryArithmetic(char symbol);
     void _writeKeywordConstant(KeyWord keyword);
+    void _writeStringConst();
 
     Segment _kindToSymbol(Kind kind);
     std::string _makeLabel();

@@ -226,8 +226,19 @@ void CompilationEngine::_writeKeywordConstant(KeyWord keyword)
     } else if (keyword == KeyWord::FALSE || keyword == KeyWord::NULL_) {
         _vmWriter.writePush(Segment::CONST, 0);
     } else if (keyword == KeyWord::THIS) {
-        // 合ってるかわからない。要確認
         _vmWriter.writePush(Segment::POINTER, 0);
+    }
+}
+
+
+void CompilationEngine::_writeStringConst()
+{
+    size_t len = _jackTokenizer.stringVal().length();
+    _vmWriter.writePush(Segment::CONST, len);
+    _vmWriter.writeCall("String.new", 1);
+    for (size_t i = 0; i < len; ++i) {
+        _vmWriter.writePush(Segment::CONST, _jackTokenizer.stringVal()[i]);
+        _vmWriter.writeCall("String.appendChar", 2);
     }
 }
 
@@ -427,6 +438,8 @@ void CompilationEngine::compileTerm()
             _vmWriter.writePush(Segment::CONST, _jackTokenizer.intVal());
         } else if (_isKeywordConstant()) {
             _writeKeywordConstant(_jackTokenizer.keyWord());
+        } else {
+            _writeStringConst();
         }
         _writeBetween();
         _nextTokenError();
@@ -450,10 +463,17 @@ void CompilationEngine::compileTerm()
         int index = (kind == Kind::NONE ? 0 : _symbolTable.indexOf(identifier));
         _nextTokenError();
         if (_checkSymbol('[')) {
+            if (kind == Kind::NONE) {
+                _compileError("compileTerm Variables are not declared");
+            }
+            _vmWriter.writePush(_kindToSymbol(kind), index);
             _writeBetween(TokenType::IDENTIFIER, identifier);
             _writeBetween();
             _nextTokenError();
             compileExpression();
+            _vmWriter.writeArithmetic(Command::ADD);
+            _vmWriter.writePop(Segment::POINTER, 1);
+            _vmWriter.writePush(Segment::THAT, 0);
             _checkSymbol(']', "Not compileTerm ]");
             _writeBetween();
             _nextTokenError();
@@ -564,12 +584,15 @@ void CompilationEngine::compileLet()
         _compileError("compileLet Variables are not declared");
     }
     int index = _symbolTable.indexOf(varName);
+    bool arrayFlag = false;
     _writeBetween();
     _nextTokenError();
     if (_checkSymbol('[')) {
         _writeBetween();
         _nextTokenError();
         compileExpression();
+        _vmWriter.writePop(Segment::TEMP, 1);
+        arrayFlag = true;
         _checkSymbol(']', "Not letStatement ]");
         _writeBetween();
         _nextTokenError();
@@ -578,7 +601,15 @@ void CompilationEngine::compileLet()
     _writeBetween();
     _nextTokenError();
     compileExpression();
-    _vmWriter.writePop(_kindToSymbol(kind), index);
+    if (arrayFlag) {
+        _vmWriter.writePush(Segment::TEMP, 1);
+        _vmWriter.writePush(_kindToSymbol(kind), index);
+        _vmWriter.writeArithmetic(Command::ADD);
+        _vmWriter.writePop(Segment::POINTER, 1);
+        _vmWriter.writePop(Segment::THAT, 0);
+    } else {
+        _vmWriter.writePop(_kindToSymbol(kind), index);
+    }
     _checkSymbol(';', "Not letStatement ;");
     _writeBetween();
     _nextTokenError();
