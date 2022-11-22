@@ -29,16 +29,21 @@ std::string fileCheck(std::string filePath)
 }
 
 
-void oneFileCompile(std::string filePath, std::string outPath)
+void oneFileCompile(bool debugMode, std::string filePath, std::string outPath)
 {
-    CompilationEngine compilationEngine(filePath, outPath);
+    CompilationEngine compilationEngine(debugMode, filePath, outPath);
     compilationEngine.CompileClass();
 }
 
 
 int main(int argc, char** argv)
 {
-    if (argc != 2) {
+    bool debugMode = false;
+    if (argc == 3) {
+        if (argv[2] == std::string("-debug")) {
+            std::cout << debugMode << std::endl;
+        }
+    } else if (argc != 2) {
         std::cerr << "specify a file name" << std::endl;
         std::exit(1);
     }
@@ -53,7 +58,7 @@ int main(int argc, char** argv)
             std::cerr << "specify files with .jack extension" << std::endl;
             std::exit(1);
         }
-        oneFileCompile(inputPath, outPath);
+        oneFileCompile(debugMode, inputPath, outPath);
     } else {
         dirent* entry = readdir(dp);
         while (entry != NULL) {
@@ -61,7 +66,7 @@ int main(int argc, char** argv)
             std::string outName = fileCheck(fileName);
             if (!outName.empty()) {
                 std::cout << "Compile: " << fileName << std::endl;
-                oneFileCompile(inputPath + "/" + fileName, inputPath + "/" + outName);
+                oneFileCompile(debugMode, inputPath + "/" + fileName, inputPath + "/" + outName);
             }
             entry = readdir(dp);
         }

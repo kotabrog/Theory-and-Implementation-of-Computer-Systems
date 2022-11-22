@@ -13,12 +13,15 @@ void CompilationEngine::_makeTable()
 }
 
 
-CompilationEngine::CompilationEngine(std::string filePath, std::string outPath)
-    : _ofs(outPath + ".xml"), _jackTokenizer(filePath), _vmWriter(outPath)
+CompilationEngine::CompilationEngine(bool debug, std::string filePath, std::string outPath)
+    : _debug(debug), _jackTokenizer(filePath), _vmWriter(outPath)
 {
-    if (!_ofs) {
-        std::cerr << "Could not open file" << std::endl;
-        std::exit(1);
+    if (debug) {
+        _ofs.open(outPath + ".xml");
+        if (!_ofs) {
+            std::cerr << "Could not open file" << std::endl;
+            std::exit(1);
+        }
     }
     if (_tokenTypeTable.empty()) {
         _makeTable();
@@ -156,31 +159,36 @@ void CompilationEngine::_checkSymbol(char symbol,
 
 void CompilationEngine::_writeBegin(std::string s)
 {
-    _ofs << "<" << s << ">" << std::endl;
+    if (_debug)
+        _ofs << "<" << s << ">" << std::endl;
 }
 
 
 void CompilationEngine::_writeEnd(std::string s)
 {
-    _ofs << "</" << s << ">" << std::endl;
+    if (_debug)
+        _ofs << "</" << s << ">" << std::endl;
 }
 
 
 void CompilationEngine::_writeBetween(std::string label, std::string s)
 {
-    _ofs << "<" << label << "> " << s << " </" << label << ">" << std::endl;
+    if (_debug)
+        _ofs << "<" << label << "> " << s << " </" << label << ">" << std::endl;
 }
 
 
 void CompilationEngine::_writeBetween(TokenType label, std::string s)
 {
-    _writeBetween(_tokenTypeTable[label], s);
+    if (_debug)
+        _writeBetween(_tokenTypeTable[label], s);
 }
 
 
 void CompilationEngine::_writeBetween()
 {
-    _writeBetween(_jackTokenizer.tokenType(), _getTokenValueByType());
+    if (_debug)
+        _writeBetween(_jackTokenizer.tokenType(), _getTokenValueByType());
 }
 
 

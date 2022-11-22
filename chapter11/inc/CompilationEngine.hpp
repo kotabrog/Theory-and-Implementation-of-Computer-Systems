@@ -15,7 +15,7 @@ class CompilationEngine
 private:
     static std::map<TokenType, std::string> _tokenTypeTable;
 
-    // 削除予定
+    bool _debug;
     std::ofstream _ofs;
     JackTokenizer _jackTokenizer;
     SymbolTable _symbolTable;
@@ -81,7 +81,7 @@ private:
 
 
 public:
-    CompilationEngine(std::string filePath, std::string outPath);
+    CompilationEngine(bool debug, std::string filePath, std::string outPath);
     void CompileClass();
 };
 
