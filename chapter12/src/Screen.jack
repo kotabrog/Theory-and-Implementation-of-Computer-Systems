@@ -55,7 +55,7 @@ class Screen {
         var int value, address, j;
         let address = baseAddress + (y * 32) + (x / 16);
         let value = Memory.peek(address);
-        let j = x - (x / 16 * 16);
+        let j = x & 15;
         if (twoToThe[j] & value = 0) {
             if (color) {
                 let value = value + twoToThe[j];

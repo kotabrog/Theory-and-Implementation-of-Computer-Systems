@@ -93,12 +93,8 @@ push local 1
 call Memory.peek 1
 pop local 0
 push argument 0
-push argument 0
-push constant 16
-call Math.divide 2
-push constant 16
-call Math.multiply 2
-sub
+push constant 15
+and
 pop local 2
 push static 2
 push local 2
