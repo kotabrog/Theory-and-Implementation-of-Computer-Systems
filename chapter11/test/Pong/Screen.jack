@@ -69,6 +69,17 @@ class Screen {
         return;
     }
 
+    function void drawBite(int x, int y, int value) {
+        var int v;
+        if (color) {
+            let v = value;
+        } else {
+            let v = -value;
+        }
+        do Memory.poke(baseAddress + (y * 32) + (x / 16), v);
+        return;
+    }
+
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
         var int startX, startY, dx, dy, a, b, adyMinusbdx;
@@ -135,8 +146,13 @@ class Screen {
         while (r < (y2 + 1)) {
             let c = x1;
             while (c < (x2 + 1)) {
-                do Screen.drawPixel(c, r);
-                let c = c + 1;
+                if (c & 15 = 0 & (c + 15 < (x2 + 1))) {
+                    do Screen.drawBite(c, r, -1);
+                    let c = c + 15;
+                } else {
+                    do Screen.drawPixel(c, r);
+                    let c = c + 1;
+                }
             }
             let r = r + 1;
         }

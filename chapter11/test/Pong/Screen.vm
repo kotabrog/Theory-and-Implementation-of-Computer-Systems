@@ -145,6 +145,31 @@ push local 0
 call Memory.poke 2
 pop temp 0
 return
+function Screen.drawBite 1
+push static 0
+not
+if-goto label0
+push argument 2
+pop local 0
+goto label1
+label label0
+push argument 2
+neg
+pop local 0
+label label1
+push static 1
+push argument 1
+push constant 32
+call Math.multiply 2
+add
+push argument 0
+push constant 16
+call Math.divide 2
+add
+push local 0
+call Memory.poke 2
+pop temp 0
+return
 function Screen.drawLine 8
 push argument 2
 push argument 0
@@ -324,6 +349,33 @@ lt
 not
 if-goto label3
 push local 0
+push constant 15
+and
+push constant 0
+eq
+push local 0
+push constant 15
+add
+push argument 2
+push constant 1
+add
+lt
+and
+not
+if-goto label4
+push local 0
+push local 1
+push constant 1
+neg
+call Screen.drawBite 3
+pop temp 0
+push local 0
+push constant 15
+add
+pop local 0
+goto label5
+label label4
+push local 0
 push local 1
 call Screen.drawPixel 2
 pop temp 0
@@ -331,6 +383,7 @@ push local 0
 push constant 1
 add
 pop local 0
+label label5
 goto label2
 label label3
 push local 1
