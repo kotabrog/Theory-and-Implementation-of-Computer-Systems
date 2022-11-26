@@ -1,0 +1,210 @@
+function Memory.init 0
+push constant 2048
+pop static 0
+push constant 0
+pop temp 1
+push constant 14336
+push temp 1
+push static 0
+add
+pop pointer 1
+pop that 0
+push constant 1
+pop temp 1
+push constant 0
+push temp 1
+push static 0
+add
+pop pointer 1
+pop that 0
+return
+function Memory.peek 1
+push constant 0
+pop local 0
+push local 0
+push argument 0
+add
+pop pointer 1
+push that 0
+return
+function Memory.poke 1
+push constant 0
+pop local 0
+push argument 0
+pop temp 1
+push argument 1
+push temp 1
+push local 0
+add
+pop pointer 1
+pop that 0
+return
+function Memory.alloc 3
+push static 0
+push constant 0
+eq
+not
+if-goto label0
+push constant 0
+return
+goto label1
+label label0
+label label1
+push argument 0
+push constant 1
+lt
+not
+if-goto label2
+push constant 0
+return
+goto label3
+label label2
+label label3
+push static 0
+pop local 2
+push static 0
+pop local 1
+label label4
+push argument 0
+push constant 1
+add
+push local 1
+push constant 0
+add
+pop pointer 1
+push that 0
+gt
+push local 1
+push constant 1
+add
+pop pointer 1
+push that 0
+push constant 0
+eq
+not
+and
+not
+if-goto label5
+push local 1
+pop local 2
+push local 1
+push constant 1
+add
+pop pointer 1
+push that 0
+pop local 1
+goto label4
+label label5
+push argument 0
+push constant 1
+add
+push local 1
+push constant 0
+add
+pop pointer 1
+push that 0
+gt
+not
+if-goto label6
+push constant 0
+return
+goto label7
+label label6
+label label7
+push local 1
+push local 1
+push constant 0
+add
+pop pointer 1
+push that 0
+add
+push argument 0
+sub
+pop local 0
+push local 1
+push constant 0
+add
+pop pointer 1
+push that 0
+push argument 0
+sub
+push constant 1
+sub
+push constant 2
+lt
+not
+if-goto label8
+push local 2
+push local 1
+eq
+not
+if-goto label10
+push local 1
+push constant 1
+add
+pop pointer 1
+push that 0
+pop static 0
+goto label11
+label label10
+push constant 1
+pop temp 1
+push local 1
+push constant 1
+add
+pop pointer 1
+push that 0
+push temp 1
+push local 2
+add
+pop pointer 1
+pop that 0
+label label11
+goto label9
+label label8
+push constant 0
+pop temp 1
+push local 1
+push constant 0
+add
+pop pointer 1
+push that 0
+push argument 0
+sub
+push constant 1
+sub
+push temp 1
+push local 1
+add
+pop pointer 1
+pop that 0
+label label9
+push constant 1
+neg
+pop temp 1
+push argument 0
+push constant 1
+add
+push temp 1
+push local 0
+add
+pop pointer 1
+pop that 0
+push local 0
+return
+function Memory.deAlloc 1
+push argument 0
+push constant 1
+sub
+pop local 0
+push constant 1
+pop temp 1
+push static 0
+push temp 1
+push local 0
+add
+pop pointer 1
+pop that 0
+push local 0
+pop static 0
+return

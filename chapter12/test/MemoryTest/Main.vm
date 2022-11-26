@@ -1,0 +1,179 @@
+function Main.main 5
+push constant 8000
+push constant 333
+call Memory.poke 2
+pop temp 0
+push constant 8000
+call Memory.peek 1
+pop local 0
+push constant 8001
+push local 0
+push constant 1
+add
+call Memory.poke 2
+pop temp 0
+push constant 3
+call Array.new 1
+pop local 2
+push constant 2
+pop temp 1
+push constant 222
+push temp 1
+push local 2
+add
+pop pointer 1
+pop that 0
+push constant 8002
+push local 2
+push constant 2
+add
+pop pointer 1
+push that 0
+call Memory.poke 2
+pop temp 0
+push constant 0
+pop local 1
+push constant 3
+call Array.new 1
+pop local 3
+push constant 1
+pop temp 1
+push local 2
+push constant 2
+add
+pop pointer 1
+push that 0
+push constant 100
+sub
+push temp 1
+push local 3
+add
+pop pointer 1
+pop that 0
+push local 3
+push local 2
+eq
+not
+if-goto label0
+push constant 1
+pop local 1
+goto label1
+label label0
+label label1
+push constant 8003
+push local 3
+push constant 1
+add
+pop pointer 1
+push that 0
+push local 1
+add
+call Memory.poke 2
+pop temp 0
+push constant 0
+pop local 1
+push constant 500
+call Array.new 1
+pop local 4
+push constant 499
+pop temp 1
+push local 2
+push constant 2
+add
+pop pointer 1
+push that 0
+push local 3
+push constant 1
+add
+pop pointer 1
+push that 0
+sub
+push temp 1
+push local 4
+add
+pop pointer 1
+pop that 0
+push local 4
+push local 2
+eq
+not
+if-goto label2
+push constant 1
+pop local 1
+goto label3
+label label2
+label label3
+push local 4
+push local 3
+eq
+not
+if-goto label4
+push local 1
+push constant 10
+add
+pop local 1
+goto label5
+label label4
+label label5
+push constant 8004
+push local 4
+push constant 499
+add
+pop pointer 1
+push that 0
+push local 1
+add
+call Memory.poke 2
+pop temp 0
+push local 2
+call Array.dispose 1
+pop temp 0
+push local 3
+call Array.dispose 1
+pop temp 0
+push constant 0
+pop local 1
+push constant 3
+call Array.new 1
+pop local 3
+push constant 0
+pop temp 1
+push local 4
+push constant 499
+add
+pop pointer 1
+push that 0
+push constant 90
+sub
+push temp 1
+push local 3
+add
+pop pointer 1
+pop that 0
+push local 3
+push local 4
+eq
+not
+if-goto label6
+push constant 1
+pop local 1
+goto label7
+label label6
+label label7
+push constant 8005
+push local 3
+push constant 0
+add
+pop pointer 1
+push that 0
+push local 1
+add
+call Memory.poke 2
+pop temp 0
+push local 4
+call Array.dispose 1
+pop temp 0
+push local 3
+call Array.dispose 1
+pop temp 0
+return
