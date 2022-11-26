@@ -97,7 +97,7 @@ class Math {
      */
     function int divide(int x, int y) {
         var bool minus;
-        var int q;
+        var int q, temp;
         var int xAbs;
         var int yAbs;
         if ((x = 0) | (y = 0)) {
@@ -124,12 +124,13 @@ class Math {
         if (yAbs > xAbs) {
             return 0;
         }
-        let q = Math.divide(xAbs, 2 * yAbs);
-        if (xAbs - (2 * q * yAbs) < yAbs) {
-            let q = 2 * q;
+        let q = Math.divide(xAbs, yAbs + yAbs);
+        let temp = q * yAbs;
+        if (xAbs - (temp + temp) < yAbs) {
+            let q = q + q;
         }
         else {
-            let q = 2 * q + 1;
+            let q = q + q + 1;
         }
         if (minus) {
             return -q;

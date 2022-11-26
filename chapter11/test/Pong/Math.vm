@@ -184,7 +184,7 @@ label label12
 label label13
 push local 0
 return
-function Math.divide 4
+function Math.divide 5
 push argument 0
 push constant 0
 eq
@@ -235,12 +235,12 @@ label label7
 label label3
 push argument 0
 call Math.abs 1
-pop local 2
+pop local 3
 push argument 1
 call Math.abs 1
-pop local 3
+pop local 4
+push local 4
 push local 3
-push local 2
 gt
 not
 if-goto label8
@@ -249,32 +249,34 @@ return
 goto label9
 label label8
 label label9
-push local 2
-push constant 2
 push local 3
-call Math.multiply 2
+push local 4
+push local 4
+add
 call Math.divide 2
 pop local 1
-push local 2
-push constant 2
 push local 1
+push local 4
 call Math.multiply 2
+pop local 2
 push local 3
-call Math.multiply 2
+push local 2
+push local 2
+add
 sub
-push local 3
+push local 4
 lt
 not
 if-goto label10
-push constant 2
 push local 1
-call Math.multiply 2
+push local 1
+add
 pop local 1
 goto label11
 label label10
-push constant 2
 push local 1
-call Math.multiply 2
+push local 1
+add
 push constant 1
 add
 pop local 1
