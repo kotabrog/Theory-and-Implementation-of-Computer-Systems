@@ -190,7 +190,7 @@ class Output {
     function void printCharSupport(char c) {
         var int x, y, value, temp, baseX, baseY;
         var Array map;
-        let map = charMaps[c];
+        let map = Output.getMap(c);
         let baseX = cursorX * 11;
         let baseY = cursorY * 8;
         let y = 0;

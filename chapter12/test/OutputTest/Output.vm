@@ -1487,11 +1487,8 @@ call Output.printCharSupport 1
 pop temp 0
 return
 function Output.printCharSupport 7
-push static 0
 push argument 0
-add
-pop pointer 1
-push that 0
+call Output.getMap 1
 pop local 6
 push static 1
 push constant 11
