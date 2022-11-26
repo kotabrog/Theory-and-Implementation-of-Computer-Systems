@@ -1,8 +1,55 @@
-function Output.init 0
-push constant 0
+function Output.init 1
+push constant 15
+call Array.new 1
 pop static 1
 push constant 0
+pop temp 1
+push constant 1
+push temp 1
+push static 1
+add
+pop pointer 1
+pop that 0
+push constant 1
+pop local 0
+label label0
+push local 0
+push constant 15
+lt
+not
+if-goto label1
+push local 0
+pop temp 1
+push static 1
+push local 0
+push constant 1
+sub
+add
+pop pointer 1
+push that 0
+push static 1
+push local 0
+push constant 1
+sub
+add
+pop pointer 1
+push that 0
+add
+push temp 1
+push static 1
+add
+pop pointer 1
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto label0
+label label1
+push constant 0
 pop static 2
+push constant 0
+pop static 3
 call Output.initMap 0
 pop temp 0
 return
@@ -1479,25 +1526,25 @@ push that 0
 return
 function Output.moveCursor 0
 push argument 0
-pop static 1
-push argument 1
 pop static 2
+push argument 1
+pop static 3
 push constant 32
 call Output.printCharSupport 1
 pop temp 0
 return
-function Output.printCharSupport 7
+function Output.printCharSupport 6
 push argument 0
 call Output.getMap 1
-pop local 6
-push static 1
+pop local 5
+push static 2
 push constant 11
 call Math.multiply 2
-pop local 4
-push static 2
+pop local 3
+push static 3
 push constant 8
 call Math.multiply 2
-pop local 5
+pop local 4
 push constant 0
 pop local 1
 push constant 0
@@ -1510,7 +1557,7 @@ not
 if-goto label1
 push constant 0
 pop local 1
-push local 6
+push local 5
 push local 0
 add
 pop pointer 1
@@ -1523,24 +1570,20 @@ lt
 not
 if-goto label3
 push local 2
-pop local 3
-push local 3
-push constant 2
-call Math.divide 2
-pop local 2
-push local 3
-push local 2
-push constant 2
-call Math.multiply 2
-sub
-push constant 1
-eq
-call Screen.setColor 1
-pop temp 0
-push local 5
+push static 1
 push local 1
 add
+pop pointer 1
+push that 0
+and
+push constant 0
+gt
+call Screen.setColor 1
+pop temp 0
 push local 4
+push local 1
+add
+push local 3
 push local 0
 add
 call Screen.drawPixel 2
@@ -1562,36 +1605,36 @@ function Output.printChar 0
 push argument 0
 call Output.printCharSupport 1
 pop temp 0
-push static 2
+push static 3
 push constant 63
 eq
 not
 if-goto label0
 push constant 0
-pop static 2
-push static 1
-push constant 1
-add
-pop static 1
-goto label1
-label label0
+pop static 3
 push static 2
 push constant 1
 add
 pop static 2
+goto label1
+label label0
+push static 3
+push constant 1
+add
+pop static 3
 label label1
-push static 1
+push static 2
 push constant 23
 eq
 not
 if-goto label2
 push constant 0
-pop static 1
+pop static 2
 goto label3
 label label2
 label label3
-push static 1
 push static 2
+push static 3
 call Output.moveCursor 2
 pop temp 0
 return
@@ -1636,56 +1679,56 @@ pop temp 0
 return
 function Output.println 0
 push constant 0
-pop static 2
-push static 1
+pop static 3
+push static 2
 push constant 1
 add
-pop static 1
-push static 1
+pop static 2
+push static 2
 push constant 23
 eq
 not
 if-goto label0
 push constant 0
-pop static 1
+pop static 2
 goto label1
 label label0
 label label1
-push static 1
 push static 2
+push static 3
 call Output.moveCursor 2
 pop temp 0
 return
 function Output.backSpace 0
-push static 2
+push static 3
 push constant 0
 eq
 not
 if-goto label0
-push static 1
+push static 2
 push constant 0
 eq
 not
 not
 if-goto label2
 push constant 63
-pop static 2
-push static 1
+pop static 3
+push static 2
 push constant 1
 sub
-pop static 1
+pop static 2
 goto label3
 label label2
 label label3
 goto label1
 label label0
-push static 2
+push static 3
 push constant 1
 sub
-pop static 2
+pop static 3
 label label1
-push static 1
 push static 2
+push static 3
 call Output.moveCursor 2
 pop temp 0
 return

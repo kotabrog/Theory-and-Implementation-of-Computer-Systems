@@ -18,10 +18,19 @@ class Output {
 
     // Character map for displaying characters
     static Array charMaps;
+    static Array twoToThe;
     static int cursorX, cursorY;
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
+        var int j;
+        let twoToThe = Array.new(15);
+        let twoToThe[0] = 1;
+        let j = 1;
+        while (j < 15) {
+            let twoToThe[j] = twoToThe[j - 1] + twoToThe[j - 1];
+            let j = j + 1;
+        }
         let cursorX = 0;
         let cursorY = 0;
         do Output.initMap();
@@ -188,7 +197,7 @@ class Output {
     }
 
     function void printCharSupport(char c) {
-        var int x, y, value, temp, baseX, baseY;
+        var int x, y, value, baseX, baseY;
         var Array map;
         let map = Output.getMap(c);
         let baseX = cursorX * 11;
@@ -199,9 +208,7 @@ class Output {
             let y = 0;
             let value = map[x];
             while (y < 8) {
-                let temp = value;
-                let value = temp / 2;
-                do Screen.setColor(temp - (value * 2) = 1);
+                do Screen.setColor(value & twoToThe[y] > 0);
                 do Screen.drawPixel(baseY + y, baseX + x);
                 let y = y + 1;
             }
