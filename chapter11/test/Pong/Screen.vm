@@ -116,7 +116,7 @@ push local 2
 add
 pop pointer 1
 push that 0
-add
+or
 pop local 0
 goto label3
 label label2

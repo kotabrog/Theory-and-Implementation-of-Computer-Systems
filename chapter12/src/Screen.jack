@@ -58,7 +58,7 @@ class Screen {
         let j = x & 15;
         if (twoToThe[j] & value = 0) {
             if (color) {
-                let value = value + twoToThe[j];
+                let value = value | twoToThe[j];
             }
         } else {
             if (~color) {
