@@ -76,56 +76,15 @@ return
 goto label1
 label label0
 label label1
-push constant 15
-pop local 0
 push argument 0
-pop local 1
-label label2
-push local 0
-push argument 1
-eq
-not
-not
-if-goto label3
-push local 0
-push constant 1
-sub
-pop local 0
-push local 1
 push static 0
-push local 0
+push argument 1
 add
 pop pointer 1
 push that 0
-lt
-not
-not
-if-goto label4
-push local 1
-push static 0
-push local 0
-add
-pop pointer 1
-push that 0
-sub
-pop local 1
-push local 0
-push argument 1
-eq
-not
-if-goto label6
-push constant 1
-neg
-return
-goto label7
-label label6
-label label7
-goto label5
-label label4
-label label5
-goto label2
-label label3
+and
 push constant 0
+gt
 return
 function Math.multiply 5
 push argument 0

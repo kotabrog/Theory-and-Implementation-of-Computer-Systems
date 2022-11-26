@@ -40,18 +40,7 @@ class Math {
         if ((j > 14) | (j < 0)) {
             return false;
         }
-        let k = 15;
-        let y = x;
-        while (~(k = j)) {
-            let k = k - 1;
-            if (~(y < twoToThe[k])) {
-                let y = y - twoToThe[k];
-                if (k = j) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return x & twoToThe[j] > 0;
     }
 
     /** Returns the product of x and y. 
