@@ -35,8 +35,6 @@ class Math {
 
     /** Given a positive integer x, returns whether the j-th bit is true or not */
     function boolean bit(int x, int j) {
-        var int k;
-        var int y;
         if ((j > 14) | (j < 0)) {
             return false;
         }
@@ -90,6 +88,21 @@ class Math {
         return sum;
     }
 
+    function int divideSupport(int x, int y) {
+        var int q, temp;
+        if (y > x) {
+            return 0;
+        }
+        let q = Math.divideSupport(x, y + y);
+        let temp = q * y;
+        if (x - (temp + temp) < y) {
+            return q + q;
+        }
+        else {
+            return q + q + 1;
+        }
+    }
+
     /** Returns the integer part of x/y.
      *  When a Jack compiler detects the multiplication operator '/' in the 
      *  program's code, it handles it by invoking this method. In other words,
@@ -124,14 +137,7 @@ class Math {
         if (yAbs > xAbs) {
             return 0;
         }
-        let q = Math.divide(xAbs, yAbs + yAbs);
-        let temp = q * yAbs;
-        if (xAbs - (temp + temp) < yAbs) {
-            let q = q + q;
-        }
-        else {
-            let q = q + q + 1;
-        }
+        let q = Math.divideSupport(xAbs, yAbs);
         if (minus) {
             return -q;
         }

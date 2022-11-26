@@ -61,7 +61,7 @@ label label0
 push argument 0
 return
 label label1
-function Math.bit 2
+function Math.bit 0
 push argument 1
 push constant 14
 gt
@@ -184,6 +184,49 @@ label label12
 label label13
 push local 0
 return
+function Math.divideSupport 2
+push argument 1
+push argument 0
+gt
+not
+if-goto label0
+push constant 0
+return
+goto label1
+label label0
+label label1
+push argument 0
+push argument 1
+push argument 1
+add
+call Math.divideSupport 2
+pop local 0
+push local 0
+push argument 1
+call Math.multiply 2
+pop local 1
+push argument 0
+push local 1
+push local 1
+add
+sub
+push argument 1
+lt
+not
+if-goto label2
+push local 0
+push local 0
+add
+return
+goto label3
+label label2
+push local 0
+push local 0
+add
+push constant 1
+add
+return
+label label3
 function Math.divide 5
 push argument 0
 push constant 0
@@ -251,45 +294,17 @@ label label8
 label label9
 push local 3
 push local 4
-push local 4
-add
-call Math.divide 2
+call Math.divideSupport 2
 pop local 1
-push local 1
-push local 4
-call Math.multiply 2
-pop local 2
-push local 3
-push local 2
-push local 2
-add
-sub
-push local 4
-lt
+push local 0
 not
 if-goto label10
 push local 1
-push local 1
-add
-pop local 1
-goto label11
-label label10
-push local 1
-push local 1
-add
-push constant 1
-add
-pop local 1
-label label11
-push local 0
-not
-if-goto label12
-push local 1
 neg
 return
-goto label13
-label label12
-label label13
+goto label11
+label label10
+label label11
 push local 1
 return
 function Math.sqrt 3
