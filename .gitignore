@@ -1,5 +1,2 @@
 *.out
 *.o
-Assembler
-VMtranslator
-JackAnalyzer

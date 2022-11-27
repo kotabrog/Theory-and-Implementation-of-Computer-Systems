@@ -1,0 +1,182 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Math.jack
+
+/**
+ * A library of commonly used mathematical functions.
+ * Note: Jack compilers implement multiplication and division using OS method calls.
+ */
+class Math {
+    static Array twoToThe;
+
+    /** Initializes the library. */
+    function void init() {
+        var int j;
+        let twoToThe = Array.new(15);
+        let twoToThe[0] = 1;
+        let j = 1;
+        while (j < 15) {
+            let twoToThe[j] = twoToThe[j - 1] + twoToThe[j - 1];
+            let j = j + 1;
+        }
+        return ;
+    }
+
+    /** Returns the absolute value of x. */
+    function int abs(int x) {
+        if (x < 0) {
+            return -x;
+        }
+        else {
+            return x;
+        }
+    }
+
+    /** Given a positive integer x, returns whether the j-th bit is true or not */
+    function boolean bit(int x, int j) {
+        if ((j > 14) | (j < 0)) {
+            return false;
+        }
+        return x & twoToThe[j] > 0;
+    }
+
+    /** Returns the product of x and y. 
+     *  When a Jack compiler detects the multiplication operator '*' in the 
+     *  program's code, it handles it by invoking this method. In other words,
+     *  the Jack expressions x*y and multiply(x,y) return the same value.
+     */
+    function int multiply(int x, int y) {
+        var int sum;
+        var int shiftedX;
+        var int yAbs;
+        var int i;
+        var bool minus;
+        if ((x = 0) | (y = 0)) {
+            return 0;
+        }
+        if (x < 0) {
+            if (y < 0) {
+                let minus = false;
+            }
+            else {
+                let minus = true;
+            }
+        }
+        else {
+            if (y < 0) {
+                let minus = true;
+            }
+            else {
+                let minus = false;
+            }
+        }
+        let sum = 0;
+        let shiftedX = Math.abs(x);
+        let i = 0;
+        let yAbs = Math.abs(y);
+        while (i < 16) {
+            if (Math.bit(yAbs, i)) {
+                let sum = sum + shiftedX;
+            }
+            let shiftedX = shiftedX + shiftedX;
+            let i = i + 1;
+        }
+        if (minus) {
+            return -sum;
+        }
+        return sum;
+    }
+
+    function int divideSupport(int x, int y) {
+        var int q, temp;
+        if (y > x) {
+            return 0;
+        }
+        let q = Math.divideSupport(x, y + y);
+        let temp = q * y;
+        if (x - (temp + temp) < y) {
+            return q + q;
+        }
+        else {
+            return q + q + 1;
+        }
+    }
+
+    /** Returns the integer part of x/y.
+     *  When a Jack compiler detects the multiplication operator '/' in the 
+     *  program's code, it handles it by invoking this method. In other words,
+     *  the Jack expressions x/y and divide(x,y) return the same value.
+     */
+    function int divide(int x, int y) {
+        var bool minus;
+        var int q, temp;
+        var int xAbs;
+        var int yAbs;
+        if ((x = 0) | (y = 0)) {
+            return 0;
+        }
+        if (x < 0) {
+            if (y < 0) {
+                let minus = false;
+            }
+            else {
+                let minus = true;
+            }
+        }
+        else {
+            if (y < 0) {
+                let minus = true;
+            }
+            else {
+                let minus = false;
+            }
+        }
+        let xAbs = Math.abs(x);
+        let yAbs = Math.abs(y);
+        if (yAbs > xAbs) {
+            return 0;
+        }
+        let q = Math.divideSupport(xAbs, yAbs);
+        if (minus) {
+            return -q;
+        }
+        return q;
+    }
+
+    /** Returns the integer part of the square root of x. */
+    function int sqrt(int x) {
+        var int y;
+        var int i;
+        var int temp;
+        if (~(x > 0)) {
+            return 0;
+        }
+        let y = 0;
+        let i = 8;
+        while (~(i = 0)) {
+            let i = i - 1;
+            let temp = (y + twoToThe[i]) * (y + twoToThe[i]);
+            if (~(temp > x) & (temp > 0)) {
+                let y = y + twoToThe[i];
+            }
+        }
+        return y;
+    }
+
+    /** Returns the greater number. */
+    function int max(int a, int b) {
+        if (a > b) {
+            return a;
+        }
+        return b;
+    }
+
+    /** Returns the smaller number. */
+    function int min(int a, int b) {
+        if (a < b) {
+            return a;
+        }
+        return b;
+    }
+}
